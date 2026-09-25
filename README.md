@@ -1,11 +1,11 @@
-# DecisionShift — find LLM calls worth evaluating with Jev
+# DecisionShift: find LLM calls worth evaluating with Jev
 
 [![CI](https://github.com/laodengcode/jev-decisionshift/actions/workflows/ci.yml/badge.svg)](https://github.com/laodengcode/jev-decisionshift/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/jev-decisionshift.svg)](https://www.npmjs.com/package/jev-decisionshift)
 
-DecisionShift scans TypeScript projects for bounded [Vercel AI SDK](https://ai-sdk.dev/) outputs and shows how the surrounding function consumes them.
+DecisionShift scans TypeScript projects for [Vercel AI SDK](https://ai-sdk.dev/) calls whose outputs have a fixed set of possible values. It then shows how the surrounding function uses each result.
 
-It runs locally, does not need an API key, and never executes the scanned repository. A finding is review evidence—not proof that Jev or any other implementation is a safe replacement.
+It works locally without an API key and never executes the project. Treat each finding as a place to investigate. You still need to decide whether Jev is a safe replacement.
 
 ## Try it
 
@@ -13,7 +13,7 @@ It runs locally, does not need an API key, and never executes the scanned reposi
 npx --yes jev-decisionshift scan .
 ```
 
-For example, given this routing call:
+For example, this call asks an LLM to route a support request:
 
 ```ts
 import { generateText, Output } from "ai";
@@ -44,32 +44,32 @@ Observed consumption:
 Analysis scope: local references accounted for
 ```
 
-This merits Jev evaluation because a bounded model choice directly controls routing; the finding supports human review, not an automatic replacement.
+DecisionShift flags the call because its output is limited to two choices and controls a route. That makes it a reasonable candidate to test with Jev. The report does not recommend changing the code automatically.
 
-Machine-readable output:
+Use JSON for other tools or Markdown for code reviews:
 
 ```bash
 npx --yes jev-decisionshift scan . --project tsconfig.json --format json --output scan.json
 npx --yes jev-decisionshift scan . --format markdown
 ```
 
-Exit codes are `0` for a completed scan, `2` for invalid configuration or invocation, and `3` for an incomplete scan. Findings and explicitly unsupported syntax still count as a completed scan.
+A completed scan exits with `0`, even when it finds unsupported syntax. Invalid configuration or commands exit with `2`. An incomplete scan exits with `3`.
 
-## Supported in v0.1
+## What v0.1 supports
 
-- `.ts`, `.tsx`, `.mts`, and `.cts` files.
-- `generateText` with `Output.object` or `Output.choice`.
-- Legacy `generateObject` object and enum output.
+- TypeScript files ending in `.ts`, `.tsx`, `.mts`, or `.cts`.
+- `generateText` calls that use `Output.object` or `Output.choice`.
+- Legacy `generateObject` calls with object or enum output.
 - Direct, aliased, namespace, and resolvable local re-export imports from `ai`.
-- A static Zod subset: boolean, string, number, null, literal, enum, literal unions, object, optional, nullable, strict, strip, passthrough, and describe.
-- Immutable local or imported constants made from literals, arrays, and objects.
-- Local bindings, destructuring, aliases, branches, switches, lookup keys, returns, argument passing, serialization, display, logging, and conservative escape detection.
+- Static Zod schemas using boolean, string, number, null, literal, enum, literal unions, object, optional, nullable, strict, strip, passthrough, or describe.
+- Immutable local or imported constants built from literals, arrays, and objects.
+- Local uses such as bindings, destructuring, aliases, branches, switches, lookup keys, returns, function arguments, serialization, display, and logging.
 
-Transforms, dynamic schema factories, arbitrary wrappers, arrays, project-reference traversal, and whole-program dataflow are reported as limitations rather than guessed.
+DecisionShift reports transforms, dynamic schema factories, arbitrary wrappers, arrays, project-reference traversal, and whole-program data flow as limitations instead of guessing.
 
 ## Configuration
 
-An optional `decisionshift.json` at the scan root may contain:
+Add an optional `decisionshift.json` file at the scan root to change these settings:
 
 ```json
 {
@@ -86,10 +86,12 @@ An optional `decisionshift.json` at the scan root may contain:
 }
 ```
 
-DecisionShift also reads `.gitignore` and `.decisionshiftignore`. Paths outside the workspace are denied unless listed in `allowedReadRoots`; the scanner's own TypeScript standard-library files are allowed internally.
+DecisionShift also reads `.gitignore` and `.decisionshiftignore`. It will not read outside the workspace unless a path is listed in `allowedReadRoots`. The scanner can read its own TypeScript standard-library files.
 
 ## Trust boundary
 
-DecisionShift does not import source files, schema factories, compiler plugins, configuration modules, or package scripts. It does not install target dependencies or make network requests. Analysis runs in a time- and memory-bounded child process, and reports omit prompts and source excerpts.
+DecisionShift reads source files without importing or executing them. It does not load schema factories, compiler plugins, configuration modules, or package scripts. It also does not install project dependencies or make network requests.
 
-The scanner currently embeds the TypeScript 6 compiler API because TypeScript 7 does not yet expose a stable embedded API. A TypeScript 7 project can still receive syntax-backed findings, with unsupported configuration reported as diagnostics.
+Analysis runs in a child process with time and memory limits. Reports leave out prompts and source excerpts.
+
+The scanner embeds the TypeScript 6 compiler API because TypeScript 7 does not yet expose a stable embedded API. TypeScript 7 projects still receive syntax-based findings, while unsupported configuration appears as diagnostics.
