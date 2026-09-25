@@ -7,16 +7,14 @@ It runs locally, does not need an API key, and never executes the scanned reposi
 ## Install and run
 
 ```bash
-npm install
-npm run build
-node dist/cli.js scan .
+npx --yes jev-decisionshift scan .
 ```
 
 Machine-readable output:
 
 ```bash
-node dist/cli.js scan . --project tsconfig.json --format json --output scan.json
-node dist/cli.js scan . --format markdown
+npx --yes jev-decisionshift scan . --project tsconfig.json --format json --output scan.json
+npx --yes jev-decisionshift scan . --format markdown
 ```
 
 Exit codes are `0` for a completed scan, `2` for invalid configuration or invocation, and `3` for an incomplete scan. Findings and explicitly unsupported syntax still count as a completed scan.

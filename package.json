@@ -2,6 +2,14 @@
   "name": "jev-decisionshift",
   "version": "0.1.0",
   "description": "Offline TypeScript scanner for bounded AI SDK outputs and their local consumers.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/laodengcode/jev-decisionshift.git"
+  },
+  "homepage": "https://github.com/laodengcode/jev-decisionshift#readme",
+  "bugs": {
+    "url": "https://github.com/laodengcode/jev-decisionshift/issues"
+  },
   "type": "module",
   "bin": {
     "decisionshift": "dist/cli.js"
