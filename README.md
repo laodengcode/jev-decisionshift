@@ -1,14 +1,50 @@
 # DecisionShift — find LLM calls worth evaluating with Jev
 
+[![CI](https://github.com/laodengcode/jev-decisionshift/actions/workflows/ci.yml/badge.svg)](https://github.com/laodengcode/jev-decisionshift/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/jev-decisionshift.svg)](https://www.npmjs.com/package/jev-decisionshift)
+
 DecisionShift scans TypeScript projects for bounded [Vercel AI SDK](https://ai-sdk.dev/) outputs and shows how the surrounding function consumes them.
 
 It runs locally, does not need an API key, and never executes the scanned repository. A finding is review evidence—not proof that Jev or any other implementation is a safe replacement.
 
-## Install and run
+## Try it
 
 ```bash
 npx --yes jev-decisionshift scan .
 ```
+
+For example, given this routing call:
+
+```ts
+import { generateText, Output } from "ai";
+
+export async function routeTicket(message: string) {
+  const { output } = await generateText({
+    model: "anthropic/claude-sonnet-4.5",
+    output: Output.choice({ options: ["billing", "technical"] as const }),
+    prompt: `Route this support request: ${message}`,
+  });
+
+  return { billing: "/billing", technical: "/technical" }[output];
+}
+```
+
+DecisionShift reports:
+
+```text
+DecisionShift 0.1.0 — 1 recognized AI SDK call site(s)
+
+route-ticket.ts:4:28
+
+DS001 Bounded decision call worth reviewing
+
+Declared output: "billing" | "technical"
+Observed consumption:
+  lookup-key: output (route-ticket.ts:10)
+Analysis scope: local references accounted for
+```
+
+This merits Jev evaluation because a bounded model choice directly controls routing; the finding supports human review, not an automatic replacement.
 
 Machine-readable output:
 
