@@ -1,0 +1,37 @@
+{
+  "name": "jev-decisionshift",
+  "version": "0.1.0",
+  "description": "Offline TypeScript scanner for bounded AI SDK outputs and their local consumers.",
+  "type": "module",
+  "bin": {
+    "decisionshift": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prepack": "npm run build",
+    "test": "npm run build && tsc -p tsconfig.test.json && node --test dist-tests/tests/*.test.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "ignore": "^7.0.5",
+    "typescript": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0"
+  },
+  "license": "MIT",
+  "keywords": [
+    "jev",
+    "static-analysis",
+    "typescript",
+    "structured-output",
+    "llm"
+  ]
+}
