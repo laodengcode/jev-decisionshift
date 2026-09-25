@@ -3,3 +3,4 @@ dist/
 dist-tests/
 *.tgz
 scan.json
+/MARKETING_PLAN.md
